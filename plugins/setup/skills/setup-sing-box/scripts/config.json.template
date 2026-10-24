@@ -43,7 +43,7 @@
       "tolerance": 50
     },
     {
-      // Hysteria2 出站（QUIC / UDP，自签证书用 insecure）
+      // Hysteria2 出站：自签证书必须嵌入服务器的 PEM 证书进行验证，不能仅启用 insecure
       "type": "hysteria2",
       "tag": "hy2",
       "server": "SERVER_HOST",
@@ -54,7 +54,8 @@
       "tls": {
         "enabled": true,
         "server_name": "bing.com",
-        "insecure": true
+        "insecure": false,
+        "certificate": "SERVER_CERT_PEM"
       }
     },
     {

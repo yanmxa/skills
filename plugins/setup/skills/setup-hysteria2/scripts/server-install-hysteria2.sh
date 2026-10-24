@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 # Runs ON the Linux VPS (pushed there by ssh-deploy.sh). Installs a Hysteria2
 # server with a self-signed cert, systemd service, and firewall rule, then prints
-# the client credentials in a RESULT block. Debian/Ubuntu (apt). Idempotent-ish.
+# the client credentials in a RESULT block. Debian/Ubuntu (apt).
+# Refuses to replace an existing installation or bind an occupied UDP port.
 #
 # Params via env (non-secret):  HY2_PORT (443)   HY2_SNI (bing.com)
 # The auth password is generated here and returned — never passed in.
 set -euo pipefail
+umask 077
 export DEBIAN_FRONTEND=noninteractive
 
 PORT="${HY2_PORT:-443}"
 SNI="${HY2_SNI:-bing.com}"
+
+# Check before installing packages or modifying services. Never rotate existing credentials.
+if [ -e /etc/hysteria/config.yaml ] || [ -L /etc/hysteria/config.yaml ] ||
+   [ -e /etc/hysteria/server.crt ] || [ -L /etc/hysteria/server.crt ] ||
+   [ -e /etc/hysteria/server.key ] || [ -L /etc/hysteria/server.key ] ||
+   systemctl is-active --quiet hysteria-server.service; then
+  echo "ERROR: Hysteria server files/service already exist; refusing to replace them" >&2
+  exit 1
+fi
+if command -v ss >/dev/null 2>&1 && [ -n "$(ss -H -lun "sport = :$PORT")" ]; then
+  echo "ERROR: UDP port $PORT is already in use; refusing to change another service" >&2
+  exit 1
+fi
 
 echo "=== [1/6] deps ==="
 need=""
@@ -28,12 +43,10 @@ hysteria version 2>/dev/null | head -1 || true
 
 echo "=== [3/6] self-signed cert (CN=$SNI) ==="
 mkdir -p /etc/hysteria
-if [ ! -f /etc/hysteria/server.crt ]; then
-  openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/server.key
-  openssl req -new -x509 -days 3650 -key /etc/hysteria/server.key \
-    -out /etc/hysteria/server.crt -subj "/CN=$SNI" \
-    -addext "subjectAltName=DNS:$SNI" 2>/dev/null
-fi
+openssl ecparam -genkey -name prime256v1 -out /etc/hysteria/server.key
+openssl req -new -x509 -days 3650 -key /etc/hysteria/server.key \
+  -out /etc/hysteria/server.crt -subj "/CN=$SNI" \
+  -addext "subjectAltName=DNS:$SNI" 2>/dev/null
 # hysteria-server.service runs as the 'hysteria' user — let it read the key
 chown hysteria:hysteria /etc/hysteria/server.crt /etc/hysteria/server.key 2>/dev/null || true
 chmod 644 /etc/hysteria/server.crt; chmod 600 /etc/hysteria/server.key
@@ -62,17 +75,16 @@ chown hysteria:hysteria /etc/hysteria/config.yaml 2>/dev/null || true
 chmod 600 /etc/hysteria/config.yaml
 
 echo "=== [5/6] service ==="
-systemctl enable hysteria-server.service >/dev/null 2>&1 || true
+systemctl enable hysteria-server.service >/dev/null
 systemctl restart hysteria-server.service
 sleep 1
-systemctl is-active hysteria-server.service || {
-  echo "!! service not active — recent logs:"; journalctl -u hysteria-server.service -n 20 --no-pager 2>/dev/null || true; }
+systemctl is-active --quiet hysteria-server.service || {
+  echo "ERROR: Hysteria service failed to start" >&2; exit 1; }
 
 echo "=== [6/6] firewall ==="
 if command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | grep -qi "Status: active"; then
-  ufw allow ${PORT}/udp >/dev/null 2>&1 || true
-  ufw allow ${PORT}/tcp >/dev/null 2>&1 || true
-  echo "ufw: opened ${PORT} udp+tcp"
+  ufw allow ${PORT}/udp >/dev/null
+  echo "ufw: opened ${PORT}/udp"
 else
   echo "ufw: inactive/absent (host firewall not blocking)"
 fi
@@ -86,4 +98,5 @@ echo "HY2_PORT=$PORT"
 echo "HY2_SNI=$SNI"
 echo "HY2_AUTH=$PW"
 echo "HY2_PINSHA256=$PIN"
+base64 < /etc/hysteria/server.crt | tr -d '\n' | awk '{print "HY2_CERT_BASE64=" $0}'
 echo "==== DONE ===="

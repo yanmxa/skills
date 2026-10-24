@@ -1,7 +1,7 @@
 #!/bin/bash
 # ssh-deploy.sh — sourced helper for "server mode": push a Linux install script to
 # a remote VPS over SSH and run it. Key-based auth only (no passwords in the plugin);
-# secrets are generated ON the server and printed back, never sent over the wire.
+# secrets are generated ON the server and returned inside an SSH result block.
 #
 # Required env before calling:
 #   SSH_HOST                 target VPS host / IP
@@ -19,7 +19,7 @@ SSH_PORT="${SSH_PORT:-22}"
 _SSH_OPTS=()
 
 ssh_init() {
-  _SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -p "$SSH_PORT")
+  _SSH_OPTS=(-o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -p "$SSH_PORT")
   [ -n "${SSH_KEY:-}" ] && _SSH_OPTS+=(-i "$SSH_KEY")
 }
 
@@ -29,22 +29,19 @@ ssh_precheck() {
   if ssh -o BatchMode=yes "${_SSH_OPTS[@]}" "$SSH_USER@$SSH_HOST" true 2>/dev/null; then
     return 0
   fi
-  echo "ERROR: cannot SSH to $SSH_USER@$SSH_HOST:$SSH_PORT with key auth." >&2
-  echo "       Set up key access once, then re-run:" >&2
-  echo "         ssh-copy-id -p $SSH_PORT $SSH_USER@$SSH_HOST" >&2
-  echo "       (or pass --ssh-key <path> to an authorized private key)" >&2
+  echo "ERROR: cannot SSH to $SSH_USER@$SSH_HOST:$SSH_PORT with a trusted host key and key auth." >&2
+  echo "       Verify the server's SSH fingerprint out of band and add it to known_hosts first." >&2
+  echo "       Then configure key-based SSH (or pass --ssh-key <path>)." >&2
   return 1
 }
 
-# Push a local install script to the VPS and execute it with the given env assignments.
-# Streams remote stdout/stderr live. Pass NON-secret params only (host/port/sni) — the
-# remote script generates its own passwords and prints them in its RESULT block.
-# base64 is single-quote-safe (alphabet has no quotes); env assignments must be shell-word safe.
+# Send the script on SSH stdin (not via a predictable root-owned /tmp file).
+# Pass NON-secret params only (host/port/sni) — capture stdout privately,
+# because the remote script returns a password in its RESULT block.
+# Env assignments must be validated shell-word-safe by the caller.
 ssh_run_remote_script() {
   local script="$1"; shift
   local envassign="$*"
-  local b64; b64="$(base64 < "$script" | tr -d '\n')"
   ssh_init
-  ssh "${_SSH_OPTS[@]}" "$SSH_USER@$SSH_HOST" \
-    "echo '$b64' | base64 -d > /tmp/_prox_run.sh && env $envassign bash /tmp/_prox_run.sh; rc=\$?; rm -f /tmp/_prox_run.sh; exit \$rc"
+  ssh "${_SSH_OPTS[@]}" "$SSH_USER@$SSH_HOST" "env $envassign bash -s" < "$script"
 }

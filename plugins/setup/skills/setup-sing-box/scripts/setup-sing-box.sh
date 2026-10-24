@@ -63,7 +63,7 @@ else
   cp "$SCRIPT_DIR/config.json.template" "$SB_CONFIG"
   chmod 600 "$SB_CONFIG"
   echo "  Deployed config → $SB_CONFIG (chmod 600)"
-  echo "  ⚠️  Edit it: sbedit  (fill SERVER_HOST / HY2_AUTH_TOKEN / SS_PASSWORD)"
+  echo "  ⚠️  Edit it: sbedit  (fill SERVER_HOST / HY2_AUTH_TOKEN / SS_PASSWORD / SERVER_CERT_PEM)"
 fi
 
 # --- 4. Deploy aliases (always overwrite — this is managed code) ---
@@ -131,7 +131,7 @@ else
 fi
 echo ""
 echo "Next steps:"
-echo "  1. Edit config (fill SERVER_HOST / HY2_AUTH_TOKEN / SS_PASSWORD):"
+echo "  1. Edit config (fill server / passwords and the verified Hy2 TLS certificate):"
 echo "       sbedit         # opens \$EDITOR, runs 'sing-box check', auto-restarts on save"
 echo ""
 echo "  2. Reload shell + start:"

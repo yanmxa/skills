@@ -1,3 +1,6 @@
+# Local proxy credentials and private configuration
+/.env
+
 # Always ignore sensitive files even in tracked directories
 **/*.key
 **/*.pem
