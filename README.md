@@ -1,6 +1,6 @@
 # skills
 
-Reusable [Agent Skills](https://agentskills.io/) for development, media, environment setup, and task management.
+Reusable [Agent Skills](https://agentskills.io/) for development, media, environment setup, and management.
 
 ## Install
 
@@ -50,7 +50,7 @@ gemini skills install https://github.com/yanmxa/skills.git --path skills/dev
 | [Dev](skills/dev/) | `auto-dev`, `auto-research`, `find-skill`, `git`, `review`, `simplify` |
 | [Media](skills/media/) | `animated-demo`, `repost`, `video-downloader` |
 | [Setup](skills/setup/) | `setup-ghostty`, [`setup-hysteria2`](skills/setup/setup-hysteria2/SKILL.md), `setup-tmux`, `setup-zsh` |
-| [Tasks](skills/tasks/) | [`jira`](skills/tasks/jira/SKILL.md): issues and sprints |
+| [Management](skills/mgmt/) | [`jira`](skills/mgmt/jira/SKILL.md): issues and sprints |
 
 Install `review` alongside `simplify` in the same agent and scope.
 
