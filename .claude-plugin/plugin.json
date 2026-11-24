@@ -9,16 +9,9 @@
   "repository": "https://github.com/yanmxa/skills",
   "license": "MIT",
   "skills": [
-    "./skills/engineering/",
-    "./skills/misc/",
-    "./skills/productivity/"
-  ],
-  "agents": [
-    "./skills/engineering/go-optimize/agents/go-bug-reviewer.md",
-    "./skills/engineering/go-optimize/agents/go-developer.md",
-    "./skills/engineering/go-optimize/agents/go-perf-developer.md",
-    "./skills/engineering/go-optimize/agents/go-security-reviewer.md",
-    "./skills/engineering/go-optimize/agents/go-structure-reviewer.md",
-    "./skills/engineering/go-optimize/agents/go-test-developer.md"
+    "./skills/dev/",
+    "./skills/media/",
+    "./skills/setup/",
+    "./skills/work/"
   ]
 }

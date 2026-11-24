@@ -50,9 +50,10 @@ transcripts
 
 # Publish categorized skills; keep ad hoc top-level local skills private.
 /skills/*
-!/skills/engineering/
-!/skills/misc/
-!/skills/productivity/
+!/skills/dev/
+!/skills/media/
+!/skills/setup/
+!/skills/work/
 
 __pycache__/
 .DS_Store
