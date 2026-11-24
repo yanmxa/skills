@@ -1,6 +1,6 @@
 # skills
 
-Reusable [Agent Skills](https://agentskills.io/) for development, media, setup, and Jira.
+Reusable [Agent Skills](https://agentskills.io/) for development, media, environment setup, and task management.
 
 ## Install
 
@@ -14,12 +14,32 @@ The first command opens a picker; the second installs one skill. Use `--list` to
 <details>
 <summary>Native install options</summary>
 
-| Agent | Install |
-| --- | --- |
-| Claude Code | `claude plugin marketplace add yanmxa/skills`, then `claude plugin install skills@yanmxa` |
-| Codex | `codex plugin marketplace add yanmxa/skills`, then `codex plugin add skills@yanmxa` |
-| GitHub Copilot | `copilot plugin marketplace add yanmxa/skills`, then `copilot plugin install skills@yanmxa` |
-| Gemini CLI | `gemini skills install https://github.com/yanmxa/skills.git --path skills/dev` (replace `dev` with the category you want) |
+**Claude Code**
+
+```bash
+claude plugin marketplace add yanmxa/skills
+claude plugin install skills@yanmxa
+```
+
+**Codex**
+
+```bash
+codex plugin marketplace add yanmxa/skills
+codex plugin add skills@yanmxa
+```
+
+**GitHub Copilot**
+
+```bash
+copilot plugin marketplace add yanmxa/skills
+copilot plugin install skills@yanmxa
+```
+
+**Gemini CLI** — replace `dev` with the category you want.
+
+```bash
+gemini skills install https://github.com/yanmxa/skills.git --path skills/dev
+```
 
 </details>
 
