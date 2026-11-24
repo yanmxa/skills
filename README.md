@@ -30,7 +30,7 @@ The first command opens a picker; the second installs one skill. Use `--list` to
 | [Dev](skills/dev/) | `auto-dev`, `auto-research`, `find-skill`, `git`, `review`, `simplify` |
 | [Media](skills/media/) | `animated-demo`, `repost`, `video-downloader` |
 | [Setup](skills/setup/) | `setup-ghostty`, [`setup-hysteria2`](skills/setup/setup-hysteria2/SKILL.md), `setup-tmux`, `setup-zsh` |
-| [Work](skills/work/) | `jira` |
+| [Tasks](skills/tasks/) | [`jira`](skills/tasks/jira/SKILL.md): issues and sprints |
 
 Install `review` alongside `simplify` in the same agent and scope.
 
