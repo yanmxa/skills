@@ -68,6 +68,8 @@ gemini skills install https://github.com/yanmxa/skills.git --path skills/product
 gemini skills install https://github.com/yanmxa/skills.git --path skills/misc
 ```
 
+If Gemini cannot clone the Git URL in your environment, clone the repository with Git first and run `gemini skills install ./skills/engineering` from the checkout. Repeat for `skills/productivity` or `skills/misc` as needed.
+
 </details>
 
 <details>
