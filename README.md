@@ -1,101 +1,117 @@
-# cc-plugins
+# skills
 
-A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin marketplace — install skills to automate Git, Jira, and meta-development workflows directly in your terminal.
+Reusable [Agent Skills](https://agentskills.io/) for engineering and everyday workflows. Install individual skills in Codex, Cursor, Claude Code, or another compatible agent. No Claude Code plugin is required.
 
-## Quick Start
+## Installation
+
+Pick one route per agent: install the complete bundle with the agent's plugin manager, or use the skills CLI to install editable copies of individual skills. No shared setup command is required.
+
+<details>
+<summary>Claude Code</summary>
 
 ```bash
-# Add marketplace
-/plugin marketplace add https://github.com/yanmxa/cc-plugins
-
-# Install plugins
-/plugin install git
-/plugin install jira
-/plugin install claude
-/plugin install review
+claude plugin marketplace add yanmxa/skills
+claude plugin install skills@yanmxa
 ```
 
-## Plugins
+Invoke a bundled skill as `/skills:<name>`, for example `/skills:review main`. To try a local checkout, run `claude --plugin-dir .` from the repository root.
 
-### git
+Upgrading from `cc-plugins`? Remove the old marketplace with `claude plugin marketplace remove cc-plugins` before installing. Skill names are unchanged; the command prefix is now `skills:`.
 
-Automates the full Git workflow — commit/push with DCO sign-off, create PRs (fork + branch + submit), list PRs across repos, squash commits, and batch rebase.
+</details>
 
-```
-Bundled scripts: 01-fork-and-setup.sh, 03-create-pr.sh, show-prs.sh
-```
+<details>
+<summary>Codex</summary>
 
-### jira
-
-Jira Cloud REST API v3 CLI and shell library. Sprint boards, issue CRUD, JQL search, workflow transitions, comments, links, and ADF builders — all from the terminal.
-
-```
-Bundled: jira-ops CLI + jira-ops.sh sourceable library
+```bash
+codex plugin marketplace add yanmxa/skills
+codex plugin add skills@yanmxa
 ```
 
-### review
+In a Codex session, select an installed skill with `/skills` or mention it as `$skills:find-skill`.
 
-Code review graded by the **evidence** behind each finding, never by how sure the
-model says it is. `metrics` runs first (deterministic: a tool computed it), then
-`review` fans out into independent angles — correctness, altitude, efficiency,
-reuse, cross-file consistency, conventions — verifies each candidate three-state,
-and sweeps for what the first pass missed. `defects`, `excess` and `intent` are
-focused single-question modes over the same rules.
+</details>
 
-```
-/review:review main     the pipeline: angles → verify → sweep
-/review:excess          just "what can we delete"
+<details>
+<summary>GitHub Copilot (CLI and VS Code)</summary>
+
+```bash
+copilot plugin marketplace add yanmxa/skills
+copilot plugin install skills@yanmxa
 ```
 
-### claude
+For optional CLI auto-updates, merge this marketplace entry into `~/.copilot/settings.json`:
 
-Meta-development plugin for extending Claude Code itself — extract workflows into reusable slash commands or create specialized subagents.
-
-### repost
-
-Repurpose a YouTube video into a bilingual (EN/ZH) vertical clip and publish it to 视频号 / 公众号 / Bilibili — search, download, clean rolling auto-captions into whole sentences, translate, render portrait subtitles (in the letterbox band, never over the picture), design a cover, and drive the upload.
-
-```
-Bundled scripts: clean_srt.py, verticalize.py, make_cover.py
-```
-
-### demo
-
-Animated product demos as a single HTML page that loops in the browser and renders to a crisp GIF/MP4 for a README or landing page. `comic` draws a black-and-white comic-style intro — ink outlines, halftone, stickers, sound effects, and time-driven motion — with a four-scene template and a finished nine-scene example.
-
-```
-Bundled: template.html, shoot.sh (one frame), render.sh (frames → GIF + MP4)
+```json
+{
+  "extraKnownMarketplaces": {
+    "yanmxa": {
+      "source": { "source": "github", "repo": "yanmxa/skills" },
+      "autoUpdate": true
+    }
+  }
+}
 ```
 
-## How It Works
+For VS Code, run **Chat: Install Plugin From Source** and enter `https://github.com/yanmxa/skills`. Use **Chat: Update Plugins** to update manually.
 
-Each plugin bundles skills with `SKILL.md` definitions and supporting scripts. Skills use `${CLAUDE_SKILL_DIR}` for portable paths, so they work regardless of where Claude Code installs them.
+</details>
 
-```
-plugins/
-├── claude/                        # Meta-development
-│   └── skills/
-│       ├── create-command/
-│       └── create-subagent/
-├── git/                           # Git automation
-│   └── skills/git/
-│       └── scripts/               # Fork, PR, show-prs
-├── jira/                          # Jira operations
-│   └── skills/jira/
-│       ├── scripts/               # CLI + shell library
-│       └── references/            # API docs
-└── review/                        # Code review, evidence-graded
-    └── skills/
-        ├── metrics/               # deterministic; runs first
-        ├── review/                # angles → verify → sweep
-        ├── defects/               # bugs only
-        ├── excess/                # deletions only
-        └── intent/                # spec only
+<details>
+<summary>Gemini CLI</summary>
+
+Run the command for each category you want. Re-run it to update those skills.
+
+```bash
+gemini skills install https://github.com/yanmxa/skills.git --path skills/engineering
+gemini skills install https://github.com/yanmxa/skills.git --path skills/productivity
+gemini skills install https://github.com/yanmxa/skills.git --path skills/misc
 ```
 
-## Contributing
+</details>
 
-PRs and issues welcome.
+<details>
+<summary>Cursor, other agents, or editable skill files</summary>
+
+```bash
+# Choose skills and target agents interactively
+npx skills@latest add yanmxa/skills
+
+# Or choose one skill and agent
+npx skills@latest add yanmxa/skills --skill find-skill --agent cursor
+
+# Browse without installing
+npx skills@latest add yanmxa/skills --list
+```
+
+Use `.` in place of `yanmxa/skills` from a local checkout. Installation is project-local by default; add `-g` for user-wide installation. Run `npx skills@latest update` to update installed skills, and re-run `add` to pick up new ones.
+
+</details>
+
+Install skills with shared files together for the same agent and scope. See the [code review](docs/code-review.md#install) and [macOS setup](docs/macos-setup.md#run-setup) guides for examples. `create-command` and `create-subagent` specifically create Claude Code configuration.
+
+## Skill catalog
+
+| Directory | Skills |
+| --- | --- |
+| [Engineering](skills/engineering/) | Git and PR workflows, iterative development, research experiments, Go improvements, and [code review](docs/code-review.md). |
+| [Productivity](skills/productivity/) | [`find-skill`](skills/productivity/find-skill/SKILL.md), Jira, animated demos, bilingual clips, and video downloads. |
+| [Misc](skills/misc/) | [macOS setup](docs/macos-setup.md), environment tools, and the Claude-specific `create-command` and `create-subagent` skills. |
+
+## Repository layout
+
+```text
+.claude-plugin/             # Optional Claude Code integration
+skills/
+├── engineering/
+├── misc/
+└── productivity/
+docs/                       # Workflow guides
+tests/                      # Repository-level regression tests
+.out-of-scope/              # Archived skills outside the published catalog
+```
+
+Add a skill as `skills/<category>/<name>/SKILL.md`, matching its frontmatter `name` to the directory. Keep its scripts, references, and assets next to `SKILL.md`. Claude Code, Codex, and Copilot share the manifests under `.claude-plugin/`. Update the manifest when adding a category or a bundled subagent, and bump the plugin version when publishing bundle updates.
 
 ## License
 

@@ -1,73 +1,16 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "cc-plugins",
-  "description": "Claude Code Plugins for workflow automation with Git, Jira, Dev, and environment setup skills",
-  "metadata": {
-    "version": "2.10.0"
-  },
+  "name": "yanmxa",
+  "description": "Meng Yan's reusable agent skills for engineering and everyday workflows.",
   "owner": {
     "name": "Meng Yan",
     "email": "yanmxa@gmail.com"
   },
   "plugins": [
     {
-      "name": "claude",
-      "source": "./plugins/claude",
-      "description": "Claude Development Plugin That Can Create Commands, Scripts, and Hooks for Claude Code",
-      "category": "development"
-    },
-    {
-      "name": "git",
-      "source": "./plugins/git",
-      "description": "Comprehensive Git Development Workflows Specializing in Git Operations",
-      "category": "productivity"
-    },
-    {
-      "name": "jira",
-      "source": "./plugins/jira",
-      "description": "Jira Cloud REST API v3 CLI and shell library - issue CRUD, JQL search, transitions, sprint management, and ADF builders",
-      "category": "productivity"
-    },
-    {
-      "name": "dev",
-      "source": "./plugins/dev",
-      "description": "Autonomous development workflows - auto-dev iterative fix loop and auto-research experimentation",
-      "category": "development"
-    },
-    {
-      "name": "setup",
-      "source": "./plugins/setup",
-      "description": "macOS dev environment bootstrap — Homebrew, Zsh (uv/fnm/Go), Neovim, tmux, Git+gh, Ghostty, Docker (OrbStack), proxies (Hysteria2 / Shadowsocks / sing-box, client + server), system prefs. Modular, multi-select.",
-      "category": "setup"
-    },
-    {
-      "name": "go-dev",
-      "source": "./plugins/go-dev",
-      "description": "Go development toolkit — 6 subagents (structure / bug / security reviewers + idiomatic / perf / test developers) plus a 4-phase go-optimize pipeline",
-      "category": "development"
-    },
-    {
-      "name": "video-downloader",
-      "source": "./plugins/video-downloader",
-      "description": "Download videos from YouTube and other sites using yt-dlp with quality selection, subtitles, and format options",
-      "category": "productivity"
-    },
-    {
-      "name": "repost",
-      "source": "./plugins/repost",
-      "description": "Repurpose a YouTube video into a bilingual (EN/ZH) vertical clip and publish it to 视频号 / 公众号 / Bilibili — search, download, clean auto-captions into sentences, translate, render portrait subtitles (subs in the band, never over the picture), design a cover, and drive the upload",
-      "category": "productivity"
-    },
-    {
-      "name": "review",
-      "source": "./plugins/review",
-      "description": "Language-agnostic code review graded by evidence, not conviction: a deterministic metrics prerequisite, an angles-verify-sweep pipeline, and focused defects/excess/intent modes",
-      "category": "development"
-    },
-    {
-      "name": "demo",
-      "source": "./plugins/demo",
-      "description": "Animated product demos as single HTML pages that render to crisp GIF/MP4 — comic: black-and-white comic-style intros",
+      "name": "skills",
+      "source": "./",
+      "description": "The yanmxa/skills collection as an installable plugin bundle.",
       "category": "productivity"
     }
   ]

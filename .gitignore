@@ -28,15 +28,10 @@ stats-cache.json
 .vscode
 .claude
 
-# Personal settings (use *.example.json as templates)
+# Personal settings and Claude Code's local plugin state
 settings.json
 settings.local.json
-plugins/installed_plugins.json
-plugins/known_marketplaces.json
-plugins/cache/
-plugins/marketplaces/
-plugins/repos/
-plugins/install-counts-cache.json
+/plugins/
 node_modules
 bun.lock
 transcripts
@@ -48,9 +43,16 @@ transcripts
 /commands/
 /hooks/
 /package.json
-/plugins/blocklist.json
 /scripts/
 /sessions/
-/skills/
 /tasks/
 /teams/
+
+# Publish categorized skills; keep ad hoc top-level local skills private.
+/skills/*
+!/skills/engineering/
+!/skills/misc/
+!/skills/productivity/
+
+__pycache__/
+.DS_Store

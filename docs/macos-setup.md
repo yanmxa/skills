@@ -1,0 +1,230 @@
+# macOS Setup Skills
+
+A modular set of skills for bootstrapping a fresh macOS development environment. Each component is **standalone** — pick what you want, skip what you don't.
+
+---
+
+## All Components (11 total)
+
+| ID | Installs | Files written | Independent? |
+|----|----------|--------------|--------------|
+| `brew` | Homebrew | `/opt/homebrew/` | ✅ |
+| `zsh` | Oh My Zsh + plugins + powerlevel10k + uv + fnm + Go | `~/.zshrc`, `~/.env`, `~/.zshrc.local` | needs `brew` |
+| `vim` | Neovim with full Lua config | `~/.config/nvim/`, `~/.vimrc` (fallback) | needs `brew` |
+| `tmux` | tmux + TPM + Dracula theme | `~/.tmux.conf`, `~/.tmux/plugins/` | needs `brew` |
+| `git` | git + gh + global config + SSH key | `~/.gitconfig`, `~/.gitignore_global`, `~/.ssh/id_ed25519` | needs `brew` |
+| `ghostty` | Ghostty terminal + Nerd Font | `~/.config/ghostty/config` | needs `brew` |
+| `docker` | OrbStack (replaces Docker Desktop) | `/Applications/OrbStack.app` | needs `brew` |
+| `hysteria2` | Hy2 proxy client + optional launchd service | `~/.config/hysteria/`, plist (service mode), sources own aliases | needs `brew`, **self-wires into `~/.zshrc`** |
+| `shadowsocks` | Shadowsocks client (`sslocal`) + optional launchd service | `~/.config/shadowsocks/`, plist (service mode), sources own aliases | needs `brew`, **self-wires into `~/.zshrc`** |
+| `sing-box` | sing-box client — one client for Hy2 **and** SS | `~/.config/sing-box/`, plist (service mode), sources own aliases | needs `brew`, **self-wires into `~/.zshrc`** |
+| `prefs` | 4 dev-friendly macOS defaults | `~/Library/Preferences/...` | ✅ standalone |
+
+> **Server side.** The `hysteria2` and `shadowsocks` skills also take `--server`
+> to SSH-deploy the *server* to a Linux VPS (systemd + firewall, prints client
+> creds). That's not part of this macOS picker — see each skill's `SKILL.md`.
+
+**The only hard dependency is `brew`** — every install component needs it. Beyond that, components are independent: install in any order, skip any you don't want.
+
+---
+
+## Run setup
+
+The orchestrator needs the selected component skills beside it. Install them for
+one agent in the same scope, or run directly from a repository checkout. For
+example, to make the `zsh` and `git` components available in Codex:
+
+```bash
+npx skills@latest add yanmxa/skills --skill setup-macos setup-zsh setup-git --agent codex
+```
+
+`brew` and `prefs` run inline and do not need a separate skill. The optional
+Claude Code plugin bundles all components as `/skills:setup-macos`.
+
+### 1. Through an agent
+
+Ask your agent to use `setup-macos`, for example:
+
+```text
+Use setup-macos to set up this Mac. Ask which components to install first.
+```
+
+The agent should confirm the selected components, collect any required settings,
+and then run the orchestrator. It can ask in chat if it has no selection tool.
+
+### 2. Direct CLI with explicit components
+
+```bash
+# Pick exactly what you want
+bash skills/misc/setup-macos/scripts/setup-macos.sh \
+  --components brew,zsh,git,docker
+
+# Run everything
+bash skills/misc/setup-macos/scripts/setup-macos.sh --all
+
+# See available components
+bash skills/misc/setup-macos/scripts/setup-macos.sh --list
+```
+
+### 3. Interactive CLI
+
+```bash
+bash skills/misc/setup-macos/scripts/setup-macos.sh
+```
+
+Pick component numbers, then confirm before setup starts.
+
+### 4. Run individual skills directly
+
+Each component is standalone — invoke it without the orchestrator:
+
+```bash
+bash skills/misc/setup-zsh/scripts/setup-zsh.sh
+bash skills/misc/setup-vim/scripts/setup-vim.sh
+bash skills/misc/setup-tmux/scripts/setup-tmux.sh
+bash skills/misc/setup-git/scripts/setup-git.sh
+bash skills/misc/setup-ghostty/scripts/setup-ghostty.sh
+bash skills/misc/setup-docker/scripts/setup-docker.sh
+bash skills/misc/setup-hysteria2/scripts/setup-hysteria2.sh
+```
+
+---
+
+## Pre-install checklist
+
+Only **2 components** require info to be gathered before running:
+
+### git — needs identity
+- Your name (e.g., `Meng Yan`)
+- Your email (e.g., `you@example.com`)
+
+You can pass them as arguments:
+```bash
+bash setup-git.sh "Your Name" "you@example.com"
+```
+
+Otherwise the script prompts. During install, `gh auth login` opens a browser for OAuth.
+
+### hysteria2 — needs server credentials
+- `server` — host:port of your Hy2 server
+- `auth` — auth token / password
+- `tls.pinSHA256` — SHA256 fingerprint of server cert
+
+These are NOT prompted by the script — instead the template gets deployed and you edit `~/.config/hysteria/config.yaml` after install (`hy2edit`).
+
+It also asks **how it should run**: `--service` (default — launchd auto-start on login + auto-restart on crash) or `--no-service` (manual — start/stop yourself with `hy2start`/`hy2stop`). Through Claude this is an `AskUserQuestion`; on the CLI pass the flag directly.
+
+**All other components run without questions.**
+
+---
+
+## What each component leaves behind
+
+### `brew`
+- `/opt/homebrew/` (Apple Silicon)
+- `~/Library/Caches/Homebrew/`
+
+### `zsh` — three-tier shell config
+| File | Tracked in dotfiles? | Purpose |
+|------|---------------------|---------|
+| `~/.zshrc` | ✅ yes | Generic — plugins, PATH, runtimes, aliases |
+| `~/.env` | ❌ chmod 600 | Environment variables / API keys (auto-exported) |
+| `~/.zshrc.local` | ❌ no | Machine-specific aliases / functions |
+
+Plus language runtimes: `uv` (Python), `fnm` (Node.js), `go` (Go), all installed via brew, isolation-friendly defaults baked in (e.g., `pip install` is blocked globally to force venv use).
+
+### `vim`
+- `~/.config/nvim/` (full Lua config: telescope, treesitter, LSP, catppuccin, etc.)
+
+### `tmux`
+- `~/.tmux.conf` (Ctrl-a prefix, Dracula theme, vim-style splits)
+- `~/.tmux/plugins/tpm/`
+
+### `git`
+- `~/.gitconfig` (identity, aliases, pull.rebase, push.autoSetupRemote, osxkeychain helper)
+- `~/.gitignore_global` (`.env`, `*.pem`, `*_rsa`, `__pycache__`, etc.)
+- `~/.ssh/id_ed25519` + `id_ed25519.pub`
+- gh CLI authenticated with GitHub (uploads SSH key automatically)
+
+### `ghostty`
+- `~/.config/ghostty/config` (MesloLGL Nerd Font, Builtin Light, Cmd+D splits)
+
+### `docker` (OrbStack)
+- `/Applications/OrbStack.app`
+- Auto-starts when you run any `docker` command
+
+### `hysteria2`
+- `~/.config/hysteria/config.yaml` (chmod 600 — your server / auth)
+- `~/.config/hysteria/aliases.sh` — `hy2start`/`hy2stop`/`hy2log`/`hy2edit`/`proxyon`/`proxyoff`/...
+- `~/Library/LaunchAgents/com.hysteria.client.plist` (launchd service, auto-start on login) — **only in `--service` mode; skipped in `--no-service` mode**
+- Auto-wires into `~/.zshrc` so aliases load (independent of `zsh` component)
+- `--server` mode: no local files — SSH-deploys the server to a VPS and prints client creds
+
+### `shadowsocks`
+- `~/.config/shadowsocks/config.json` (chmod 600 — server / password), default SOCKS5 `127.0.0.1:1084`
+- `~/.config/shadowsocks/aliases.sh` — `ssstart`/`ssstop`/`sslog`/`ssedit`/`sson`/`ssoff`/...
+- `~/Library/LaunchAgents/com.shadowsocks.client.plist` (launchd, service mode only)
+- `--server` mode: SSH-deploys shadowsocks-rust `ssserver` to a VPS, prints an `ss://` link
+
+### `sing-box`
+- `~/.config/sing-box/config.json` (chmod 600) — merged **Hysteria2 + Shadowsocks** outbounds, switch with `sbnode`
+- `~/.config/sing-box/aliases.sh` — `sbstart`/`sbstop`/`sblog`/`sbedit`/`sbnode`/`sbon`/`sboff`/...
+- `~/Library/LaunchAgents/com.sing-box.client.plist` (launchd, service mode only)
+- Default mixed (SOCKS5 + HTTP) port `127.0.0.1:1082` — coexists with `hysteria2` (1080/1081)
+
+### `prefs` (4 settings only)
+1. `Finder.AppleShowAllExtensions = true` — see file extensions
+2. `Dock.show-recents = false` — no clutter from "recent apps"
+3. `screencapture.location = ~/Desktop/screenshots/` — screenshots out of the way
+4. `DSDontWriteNetworkStores = true` — no `.DS_Store` on SMB shares
+
+---
+
+## Recommended install order
+
+If running everything manually, follow this order to minimize redundant prompts:
+
+```
+1. brew         (no deps)
+2. zsh          (sets up ~/.env that other tools may want to use)
+3. git          (needs name/email — interactive)
+4. vim, tmux, ghostty, docker, hysteria2  (any order — independent)
+5. prefs        (anytime, no install action)
+```
+
+The `setup-macos` orchestrator already runs them in this order.
+
+---
+
+## After install
+
+Universal post-setup steps:
+
+1. **Restart shell** — `source ~/.zshrc` (or open new terminal)
+2. **Configure prompt** — `p10k configure`
+3. **tmux plugins** — `tmux` then `prefix + I`
+4. **Edit secrets** — fill in `~/.env` and (if installed) `~/.config/hysteria/config.yaml`
+5. **Verify** — `git config --list --global`, `gh auth status`, `docker run hello-world`, `hy2start`
+
+---
+
+## Skill files
+
+```text
+skills/misc/
+├── README.md
+├── setup-macos/                         # Orchestrator
+│   ├── SKILL.md
+│   └── scripts/setup-macos.sh
+├── setup-zsh/
+├── setup-vim/
+├── setup-tmux/
+├── setup-git/
+├── setup-ghostty/
+├── setup-docker/
+├── setup-hysteria2/
+├── setup-shadowsocks/
+└── setup-sing-box/
+```
+
+Each skill's `SKILL.md` has detailed docs for that component.

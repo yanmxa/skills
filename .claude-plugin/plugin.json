@@ -1,0 +1,24 @@
+{
+  "name": "skills",
+  "version": "1.0.0",
+  "description": "Reusable agent skills for engineering and everyday workflows.",
+  "author": {
+    "name": "Meng Yan",
+    "email": "yanmxa@gmail.com"
+  },
+  "repository": "https://github.com/yanmxa/skills",
+  "license": "MIT",
+  "skills": [
+    "./skills/engineering/",
+    "./skills/misc/",
+    "./skills/productivity/"
+  ],
+  "agents": [
+    "./skills/engineering/go-optimize/agents/go-bug-reviewer.md",
+    "./skills/engineering/go-optimize/agents/go-developer.md",
+    "./skills/engineering/go-optimize/agents/go-perf-developer.md",
+    "./skills/engineering/go-optimize/agents/go-security-reviewer.md",
+    "./skills/engineering/go-optimize/agents/go-structure-reviewer.md",
+    "./skills/engineering/go-optimize/agents/go-test-developer.md"
+  ]
+}
